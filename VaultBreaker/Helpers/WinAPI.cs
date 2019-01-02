@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.ConstrainedExecution;
-using Microsoft.Win32.SafeHandles;
+using System.Text;
 
 namespace VaultBreaker.Helpers
 {
 	class WinAPI
 	{
+		#region Constants
+		public const int MEM_COMMIT = 0x00001000;
+		public const int PAGE_READWRITE = 0x04;
+		public const int WM_CLIPBOARDUPDATE = 0x031D;
+		public static IntPtr HWND_MESSAGE = new IntPtr(-3);
+		#endregion
+
 		#region Imports
 		[DllImport("kernel32.dll", SetLastError = false)]
 		public static extern void GetSystemInfo(out SYSTEM_INFO lpSystemInfo);
@@ -31,63 +34,83 @@ namespace VaultBreaker.Helpers
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern bool ReadProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, long dwSize, ref int lpNumberOfBytesRead);
 
-		[DllImport("dbghelp.dll")]
-		public static extern bool MiniDumpWriteDump(IntPtr hProcess, uint ProcessId, IntPtr hFile, MINI_DUMP_TYPE DumpType, [In] IntPtr ExceptionParam , [In] IntPtr UserStreamParam, [In] IntPtr CallbackParam);
-
-		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-		public static extern IntPtr CreateFileW(
-			[MarshalAs(UnmanagedType.LPWStr)] string filename,
-			[MarshalAs(UnmanagedType.U4)] FileAccess access,
-			[MarshalAs(UnmanagedType.U4)] FileShare share,
-			IntPtr securityAttributes,
-			[MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
-			[MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
-			IntPtr templateFile);
-
-		[DllImport("kernel32.dll", SetLastError = true)]
-		[ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-		[SuppressUnmanagedCodeSecurity]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool CloseHandle(IntPtr hObject);
-
 		[DllImport("kernel32.dll")]
 		public static extern uint GetLastError();
 
+		[DllImport("user32.dll", SetLastError = true)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool AddClipboardFormatListener(IntPtr hwnd);
 
-		[DllImport("clrdump.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-		public static extern Int32 CreateDump(Int32 ProcessId, string FileName,
-		Int32 DumpType, Int32 ExcThreadId, IntPtr ExtPtrs);
+		[DllImport("user32.dll", SetLastError = true)]
+		public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+
+		[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+		public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+		[DllImport("user32.dll")]
+		public static extern int GetWindowTextLength(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetForegroundWindow();
 
 
-#endregion
+		/**
+				[DllImport("dbghelp.dll")]
+				public static extern bool MiniDumpWriteDump(IntPtr hProcess, uint ProcessId, IntPtr hFile, MINI_DUMP_TYPE DumpType, [In] IntPtr ExceptionParam , [In] IntPtr UserStreamParam, [In] IntPtr CallbackParam);
+
+				[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+				public static extern IntPtr CreateFileW(
+					[MarshalAs(UnmanagedType.LPWStr)] string filename,
+					[MarshalAs(UnmanagedType.U4)] FileAccess access,
+					[MarshalAs(UnmanagedType.U4)] FileShare share,
+					IntPtr securityAttributes,
+					[MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
+					[MarshalAs(UnmanagedType.U4)] FileAttributes flagsAndAttributes,
+					IntPtr templateFile);
+
+				[DllImport("kernel32.dll", SetLastError = true)]
+				[ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+				[SuppressUnmanagedCodeSecurity]
+				[return: MarshalAs(UnmanagedType.Bool)]
+				public static extern bool CloseHandle(IntPtr hObject);
+		**/
+
+		/**
+				[DllImport("clrdump.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+				public static extern Int32 CreateDump(Int32 ProcessId, string FileName,
+				Int32 DumpType, Int32 ExcThreadId, IntPtr ExtPtrs);
+		**/
+
+		#endregion
 
 		#region Enums
-		public enum MINI_DUMP_TYPE : int
-		{
-			// From dbghelp.h:
-			Normal = 0x00000000,
-			WithDataSegs = 0x00000001,
-			WithFullMemory = 2,
-			WithHandleData = 0x00000004,
-			FilterMemory = 0x00000008,
-			ScanMemory = 0x00000010,
-			WithUnloadedModules = 0x00000020,
-			WithIndirectlyReferencedMemory = 0x00000040,
-			FilterModulePaths = 0x00000080,
-			WithProcessThreadData = 0x00000100,
-			WithPrivateReadWriteMemory = 0x00000200,
-			WithoutOptionalData = 0x00000400,
-			WithFullMemoryInfo = 0x00000800,
-			WithThreadInfo = 0x00001000,
-			WithCodeSegs = 0x00002000,
-			WithoutAuxiliaryState = 0x00004000,
-			WithFullAuxiliaryState = 0x00008000,
-			WithPrivateWriteCopyMemory = 0x00010000,
-			IgnoreInaccessibleMemory = 0x00020000,
-			[SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", Justification = "")]
-			ValidTypeFlags = 0x0003ffff,
-		};
-
+		/**
+	public enum MINI_DUMP_TYPE : int
+	{
+		// From dbghelp.h:
+		Normal = 0x00000000,
+		WithDataSegs = 0x00000001,
+		WithFullMemory = 2,
+		WithHandleData = 0x00000004,
+		FilterMemory = 0x00000008,
+		ScanMemory = 0x00000010,
+		WithUnloadedModules = 0x00000020,
+		WithIndirectlyReferencedMemory = 0x00000040,
+		FilterModulePaths = 0x00000080,
+		WithProcessThreadData = 0x00000100,
+		WithPrivateReadWriteMemory = 0x00000200,
+		WithoutOptionalData = 0x00000400,
+		WithFullMemoryInfo = 0x00000800,
+		WithThreadInfo = 0x00001000,
+		WithCodeSegs = 0x00002000,
+		WithoutAuxiliaryState = 0x00004000,
+		WithFullAuxiliaryState = 0x00008000,
+		WithPrivateWriteCopyMemory = 0x00010000,
+		IgnoreInaccessibleMemory = 0x00020000,
+		[SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", Justification = "")]
+		ValidTypeFlags = 0x0003ffff,
+	};
+		**/
 		[Flags]
 		public enum ProcessAccessFlags : uint
 		{
@@ -148,7 +171,7 @@ namespace VaultBreaker.Helpers
 
 
 		#region structs
-
+/**
 		[StructLayout(LayoutKind.Sequential, Pack = 4)]
 		public struct MINIDUMP_EXCEPTION_INFORMATION
 		{
@@ -156,7 +179,7 @@ namespace VaultBreaker.Helpers
 			public IntPtr ExceptionPointers;
 			public int ClientPointers;
 		}
-
+	**/
 		//For if I add 32 bit compatibility
 		[StructLayout(LayoutKind.Sequential)]
 		public struct MEMORY_BASIC_INFORMATION
