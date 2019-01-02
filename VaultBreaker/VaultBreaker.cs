@@ -18,8 +18,8 @@ namespace VaultBreaker
 		static void Main(string[] args)
 		{
 			var local = false;
-			var monitor = true;
-			var managerType = "BiTWardEn";
+			var monitor = false;
+			var managerType = "1Password";
 			var outFile = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\";
 			var inFile = ""; 
 			var cache = MemoryCache.Default.PhysicalMemoryLimit;
@@ -48,6 +48,12 @@ namespace VaultBreaker
 						Console.ReadKey();
 						BitWarden.dumpBitwarden2(outFile);
 						Console.ReadKey();
+						break;
+					case "1password":
+						Console.WriteLine("[DEBUG]: Writing output to {0}", outFile);
+						Console.WriteLine("Checking for 1Password Executables. Press Any key to continue.");
+						Console.ReadKey();
+						_1Password.dumpBitwarden2(outFile);
 						break;
 					default:
 						break;

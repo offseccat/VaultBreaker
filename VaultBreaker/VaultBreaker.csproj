@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\1Password.cs" />
     <Compile Include="Core\BitWarden.cs" />
     <Compile Include="Core\Monitoring.cs" />
     <Compile Include="Helpers\DebugFunctions.cs" />
