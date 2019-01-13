@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+  <Fielder />
+  <PropertyChanged />
+	<Costura>
+		<Unmanaged32Assemblies>
+		</Unmanaged32Assemblies>
+		<Unmanaged64Assemblies>
+			BasicFormatForCore
+			BCMakeCert
+			BouncyCastle.Crypto
+			CertMaker
+			FiddlerCore45
+			StreamExtended
+			System.Runtime.InteropServices.RuntimeInformation
+		</Unmanaged64Assemblies>
+	</Costura>
+</Weavers>
