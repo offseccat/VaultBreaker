@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VaultBreaker.Core
+namespace VaultBreaker.Helpers
 {
-	class LastPass
-	{
-		//OneTimeEmergencyKey(Disabled?)
-	}
+    public class Globals
+    {
+        public static bool DebugMode = false;
+    }
 }

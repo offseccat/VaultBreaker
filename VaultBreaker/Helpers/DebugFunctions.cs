@@ -51,9 +51,10 @@ namespace VaultBreaker.Helpers
 			}
 			return dst;
 		}
-		public static void writeDebug(string message)
+		public static void writeDebug(string message, bool debug)
 		{
-			Console.WriteLine("[DEBUG] {0}",message);
+            if (debug) 
+			    Console.WriteLine("[DEBUG] {0}",message);
 		}
 
 		public static string ReturnCleanASCII(string s)

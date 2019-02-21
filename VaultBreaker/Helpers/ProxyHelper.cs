@@ -9,7 +9,7 @@ namespace VaultBreaker.Helpers
 	{
 		public static void DoQuit()
 		{
-			DebugFunctions.writeDebug("Shutting down...");
+			DebugFunctions.writeDebug("Shutting down...", Globals.DebugMode);
 			Fiddler.FiddlerApplication.Shutdown();
 			Thread.Sleep(500);
 		}
@@ -32,7 +32,7 @@ namespace VaultBreaker.Helpers
 				Monitor.Exit(oAllSessions);
 			};
 
-			DebugFunctions.writeDebug(String.Format("Starting {0}...", Fiddler.FiddlerApplication.GetVersionString()));
+			DebugFunctions.writeDebug(String.Format("Starting {0}...", Fiddler.FiddlerApplication.GetVersionString()), Globals.DebugMode);
 			Fiddler.CONFIG.IgnoreServerCertErrors = true;
 			CONFIG.bMITM_HTTPS = true;
 
@@ -62,7 +62,7 @@ namespace VaultBreaker.Helpers
 			}
 			string body = sess.GetRequestBodyAsString();
 
-			DebugFunctions.writeDebug(String.Format("Recieved POST with the following body\r\n[DEBUG] {0}\r\n[DEBUG]{1}", body, sess.RequestMethod));
+			DebugFunctions.writeDebug(String.Format("Recieved POST with the following body\r\n[DEBUG] {0}\r\n[DEBUG]{1}", body, sess.RequestMethod), Globals.DebugMode);
 
 			/**
 			if (sess.RequestMethod == "POST")

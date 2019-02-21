@@ -8,10 +8,5 @@ namespace VaultBreaker.Core
 {
 	public class KeePass2
 	{
-
-		public static void backdoorKeePass()
-		{
-
-		}
 	}
 }
