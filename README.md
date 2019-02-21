@@ -57,7 +57,7 @@ You should see the following output:
 ```
 
 
-Current Supported Password Managers
+Currently Supported Password Managers
   - BitWarden
   - DashLane
   - 1Password
@@ -65,7 +65,7 @@ Current Supported Password Managers
 If you're looking to gather information from KeePass 2.X databases, you can download Harmj0ys KeeThief located at https://github.com/HarmJ0y/KeeThief
 
 
-#Requirements
+# Requirements
 VaultBreaker currently has the following requirements. 
 - FiddlerCore (https://www.telerik.com/fiddler/fiddlercore)
 - PowerArgs (https://github.com/adamabdelhamed/PowerArgs)
